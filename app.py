@@ -36,12 +36,14 @@ PROGRAMS = B["programs"]
 
 
 def predict(expr):
-    """expr: gene x sample DataFrame -> (scores DataFrame, prob array)."""
-    import gseapy as gp
-    gs = {k: [g for g in v if g in expr.index] for k, v in B["gene_sets"].items()}
-    ss = gp.ssgsea(data=expr, gene_sets=gs, outdir=None, min_size=3, max_size=500,
-                   sample_norm_method="rank", no_plot=True, threads=4, format="dataframe")
-    scores = ss.res2d.pivot(index="Name", columns="Term", values="NES").reindex(columns=PROGRAMS)
+    """expr: gene x sample DataFrame -> (scores DataFrame, prob array).
+    打分：样本内基因 z-score → 基因集均值（与训练一致）。"""
+    # 若输入为原始 counts/FPKM（数值范围大），先 log2 转换
+    if expr.values.max() > 100:
+        expr = np.log2(expr + 1)
+    zscore = (expr - expr.mean(axis=0)) / expr.std(axis=0)
+    scores = pd.DataFrame({k: zscore.loc[[g for g in v if g in zscore.index]].mean(axis=0)
+                           for k, v in B["gene_sets"].items()})[PROGRAMS]
     Xs = (scores[PROGRAMS].values - B["scaler_mean"]) / B["scaler_scale"]
     z = Xs @ B["coef"] + B["intercept"]
     prob = 1 / (1 + np.exp(-z))
