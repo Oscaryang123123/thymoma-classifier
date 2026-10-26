@@ -63,7 +63,7 @@ st.caption(
 st.header("1. Upload gene expression data")
 st.markdown(
     "CSV file: **rows = genes (human gene symbols), columns = samples**, values = expression "
-    "(RNA-seq counts/TPM or microarray signal are all accepted; scores are rank-normalized per sample). "
+    "(RNA-seq counts/TPM or microarray signal are all accepted; scores are z-scored within each sample). "
     "Multiple samples can be predicted at once."
 )
 st.markdown("Format example: `gene,Sample1,Sample2 ...` (first column = gene symbol, remaining columns = samples).")
@@ -99,7 +99,7 @@ if up is not None:
                 f"otherwise results may be unreliable."
             )
 
-        with st.spinner("Computing 13-program ssGSEA scores and predicting..."):
+        with st.spinner("Computing 13-program scores and predicting..."):
             scores, prob = predict(expr)
 
         st.session_state.file_key = file_key
@@ -131,7 +131,7 @@ if up is not None:
     ax.set_yticks(range(len(PROGRAMS)))
     ax.set_yticklabels([DISP[p] for p in PROGRAMS])
     ax.axvline(0, color="grey", lw=0.8)
-    ax.set_xlabel("ssGSEA NES")
+    ax.set_xlabel("Program score (z)")
     ax.set_title(f"{sel} - carcinoma probability {prob[list(scores.index).index(sel)]:.3f}")
     for s in ["top", "right"]:
         ax.spines[s].set_visible(False)
@@ -146,7 +146,7 @@ if up is not None:
 
 st.markdown("---")
 st.caption(
-    "Method: 13 thymic biology programs scored by ssGSEA, standardized, then a logistic-regression "
-    "classifier. Red = carcinoma-associated programs (squamous diff. / stroma / IFN); "
-    "blue = thymoma-associated programs (thymic epithelial / immature T)."
+    "Method: 13 thymic biology programs scored by within-sample gene z-scoring followed by gene-set "
+    "averaging, standardized, then a logistic-regression classifier. Red = carcinoma-associated programs "
+    "(squamous diff. / stroma / IFN); blue = thymoma-associated programs (thymic epithelial / immature T)."
 )
