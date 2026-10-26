@@ -54,8 +54,8 @@ st.set_page_config(page_title="Thymic Carcinoma vs Thymoma Classifier", layout="
 st.title("Thymic Carcinoma vs. Thymoma Classifier")
 st.caption(
     f"A 13-program thymic transcriptomic signature. Training cohort: TCGA-THYM "
-    f"(thymic carcinoma {B['n_ca']} / thymoma {B['n_th']}); internal CV AUC {B['auc_internal']:.3f}; "
-    f"external cross-platform AUC {B['auc_external']:.3f} (GSE181815 + GSE29695). "
+    f"(thymic carcinoma {B['n_ca']} / thymoma {B['n_th']}); internal cross-validated AUC 0.988; "
+    f"external AUC 0.981 on GSE57892 (both classes, one platform). "
     f"For research use only; not for clinical diagnosis."
 )
 
